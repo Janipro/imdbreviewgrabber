@@ -64,9 +64,11 @@ def save_reviews_to_file(browser, movie):
 
         print("Found review!")
         rating = browser.find_element_by_class_name("rating-other-user-rating")
+        user = browser.find_element_by_class_name("display-name-link")
         to_write = text.text
         to_rate = rating.text
-        file.writelines("Rating: " + to_rate + "\n" + to_write)
+        username = user.text
+        file.writelines("User: " + username + "\n" + "Rating: " + to_rate + "\n" + to_write)
 
         # The program closes after 5 seconds for convenience
         time.sleep(5)

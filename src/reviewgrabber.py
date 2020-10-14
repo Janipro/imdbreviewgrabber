@@ -41,10 +41,9 @@ def save_reviews_to_file(browser, movie):
         f = open(movie + ".txt", "x")
         f.close()
     except FileExistsError:
-        print("Found file already")
+        print("Found file already.")
 
     with open(movie + ".txt", mode="w") as file:
-
         # We need to handle spoiler warnings, as they do not show the full review
         button = browser.find_element_by_class_name("expander-icon-wrapper.spoiler-warning__control")
         if button:
@@ -57,7 +56,6 @@ def save_reviews_to_file(browser, movie):
         if not text:
             time.sleep(1)
             text = browser.find_element_by_class_name("text.show-more__control")  # Maybe now
-
         rating = browser.find_element_by_class_name("rating-other-user-rating")
         to_write = text.text
         to_rate = rating.text
@@ -76,7 +74,6 @@ def main():
     browser = webdriver.Chrome("./files/chromedriver.exe")
     browser.get("https://www.imdb.com")
     time.sleep(1)
-
     search_for_movie(browser, movie)
     save_reviews_to_file(browser, movie)
 

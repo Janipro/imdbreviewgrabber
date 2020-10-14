@@ -1,7 +1,7 @@
 import time
 from selenium import webdriver
 
-# Check to see if modules have been imported correctly.
+# Check to see if modules have been imported correctly
 if not webdriver:
     print("Could not import webdriver module!")
 if not time:
@@ -9,7 +9,7 @@ if not time:
 
 
 def search_for_movie(browser, movie):
-    """ This will be our search in the imdb movie database. """
+    """This will be our search in the imdb movie database"""
     try:
         element = browser.find_element_by_id("suggestion-search")
         print("Found search bar!")
@@ -24,7 +24,7 @@ def search_for_movie(browser, movie):
                 option.click()
                 time.sleep(1)
                 current_url = browser.current_url
-                browser.get(current_url[0:37] + "reviews?ref_=tt_ov_rt")  # All review pages have identical ending href.
+                browser.get(current_url[0:37] + "reviews?ref_=tt_ov_rt")  # All review pages have identical ending href
                 time.sleep(1)
             else:
                 print("Had to manually search for result")
@@ -35,7 +35,7 @@ def search_for_movie(browser, movie):
 
 
 def save_reviews_to_file(browser, movie):
-    """ If no file exists, we create an empty file."""
+    """If no file exists, we create an empty file"""
     try:
         print("Creating file" + movie + ".txt")
         f = open(movie + ".txt", "x")
@@ -45,7 +45,7 @@ def save_reviews_to_file(browser, movie):
 
     with open(movie + ".txt", mode="w") as file:
 
-        # We need to handle spoiler warnings, as they do not show the full review.
+        # We need to handle spoiler warnings, as they do not show the full review
         button = browser.find_element_by_class_name("expander-icon-wrapper.spoiler-warning__control")
         if button:
             button.click()  # Spoiler_warning == False (?)
@@ -53,7 +53,7 @@ def save_reviews_to_file(browser, movie):
         text = browser.find_element_by_class_name("text.show-more__control")
         print("Found review!")
 
-        # Sometimes the text class is not found.
+        # Sometimes the text class is not found
         if not text:
             time.sleep(1)
             text = browser.find_element_by_class_name("text.show-more__control")  # Maybe now
@@ -63,7 +63,7 @@ def save_reviews_to_file(browser, movie):
         to_rate = rating.text
         file.writelines(to_rate + "\n" + to_write)
 
-        # The program closes after 5 seconds for convenience.
+        # The program closes after 5 seconds for convenience
         time.sleep(5)
         browser.quit()
 

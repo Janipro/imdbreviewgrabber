@@ -1,3 +1,10 @@
+# ----------------------------------------------------------------------
+# This is a hobby project made to get better with python as a language
+# and it's modules. I will keep it updated as long as it's not too much
+# work. Feel free to add any features or make suggestions!
+# ----------------------------------------------------------------------
+
+
 import time
 from selenium import webdriver
 

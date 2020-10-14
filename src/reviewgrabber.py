@@ -44,29 +44,29 @@ def search_for_movie(browser, movie):
 def save_reviews_to_file(browser, movie):
     """If no file exists, we create an empty file"""
     try:
-        print("Creating file" + movie + ".txt")
-        f = open(movie + ".txt", "x")
+        print("Creating file: " + movie + ".txt")
+        f = open("./result/" + movie + ".txt", "x")
         f.close()
     except FileExistsError:
         print("Found file already.")
 
-    with open(movie + ".txt", mode="w") as file:
+    with open("./result/" + movie + ".txt", mode="w") as file:
         # We need to handle spoiler warnings, as they do not show the full review
         button = browser.find_element_by_class_name("expander-icon-wrapper.spoiler-warning__control")
-        if button:
-            button.click()  # Spoiler_warning == False (?)
-            time.sleep(1)
         text = browser.find_element_by_class_name("text.show-more__control")
-        print("Found review!")
-
-        # Sometimes the text class is not found
         if not text:
-            time.sleep(1)
-            text = browser.find_element_by_class_name("text.show-more__control")  # Maybe now
+            if button:
+                button.click()  # Spoiler_warning == False (?)
+                time.sleep(1)
+                text = browser.find_element_by_class_name("text.show-more__control")
+            else:
+                print("No reviews to be found.")
+
+        print("Found review!")
         rating = browser.find_element_by_class_name("rating-other-user-rating")
         to_write = text.text
         to_rate = rating.text
-        file.writelines(to_rate + "\n" + to_write)
+        file.writelines("Rating: " + to_rate + "\n" + to_write)
 
         # The program closes after 5 seconds for convenience
         time.sleep(5)

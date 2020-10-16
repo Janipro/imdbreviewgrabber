@@ -22,7 +22,7 @@ def search_for_movie(browser, movie):
     print("Found search bar!")
     if element:
         element.send_keys(movie)
-        time.sleep(2)  # Sleep is introduced to let the user see what is going on!
+        time.sleep(1)  # Sleep is introduced to let the user see what is going on!
         try:
             result = browser.find_element_by_class_name("react-autosuggest__suggestions-list")
             print("Found movie!")
@@ -36,6 +36,7 @@ def search_for_movie(browser, movie):
         except selenium.common.exceptions.NoSuchElementException:
             print("Had to manually search for result")
             element.submit()
+            time.sleep(1)
             try:
                 first_result = browser.find_element_by_class_name("result_text")
                 if first_result:
@@ -53,6 +54,13 @@ def search_for_movie(browser, movie):
 
 def save_reviews_to_file(browser, movie, amount):
     """We need to handle spoiler warnings, as they do not show the full review"""
+    reviews = browser.find_elements_by_css_selector(".imdb-user-review")
+    while len(reviews) < amount:
+        extend = browser.find_element_by_class_name("ipl-load-more__button")
+        extend.click()
+        time.sleep(1)
+        reviews = browser.find_elements_by_css_selector(".imdb-user-review")
+
     spoilers = browser.find_elements_by_class_name("lister-item.mode-detail.imdb-user-review.with-spoiler")
     if spoilers:
         button = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
@@ -60,7 +68,6 @@ def save_reviews_to_file(browser, movie, amount):
             button[i].click()  # Spoiler_warning == False (?)
         time.sleep(1)
 
-    reviews = browser.find_elements_by_css_selector(".imdb-user-review")
     if not reviews:
         print("This movie has no reviews..")
         print("Try again? y/n")
@@ -94,8 +101,8 @@ def save_reviews_to_file(browser, movie, amount):
             file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + title + "\n" + text)
             file.write("\n" * 2)
 
-        # The program closes after 3 seconds for convenience
-        time.sleep(3)
+        # The program closes after 2 seconds for convenience
+        time.sleep(2)
         print("Done!")
         raise SystemExit
 

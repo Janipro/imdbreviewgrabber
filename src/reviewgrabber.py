@@ -56,12 +56,18 @@ def save_reviews_to_file(browser, movie, amount):
     """We need to handle spoiler warnings, as they do not show the full review"""
     reviews = browser.find_elements_by_css_selector(".imdb-user-review")
     while len(reviews) < amount:
-        extend = browser.find_element_by_class_name("ipl-load-more__button")
+        extend = browser.find_element_by_class_name("load-more-data")
         extend.click()
-        time.sleep(1)
+        time.sleep(2)
         reviews = browser.find_elements_by_css_selector(".imdb-user-review")
 
-    spoilers = browser.find_elements_by_class_name("lister-item.mode-detail.imdb-user-review.with-spoiler")
+    expandables = browser.find_elements_by_class_name("text.show-more__control.clickable")
+    if expandables:
+        for i in range(len(expandables)-1):
+            expandables[i].click()
+        time.sleep(1)
+
+    spoilers = browser.find_elements_by_class_name("spoiler-warning")
     if spoilers:
         button = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
         for i in range(len(spoilers)-1):

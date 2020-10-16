@@ -94,7 +94,7 @@ def save_reviews_to_file(browser, movie, amount):
             file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + title + "\n" + text)
             file.write("\n" * 2)
 
-        # The program closes after 5 seconds for convenience
+        # The program closes after 3 seconds for convenience
         time.sleep(3)
         print("Done!")
         raise SystemExit

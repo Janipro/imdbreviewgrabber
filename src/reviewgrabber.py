@@ -6,6 +6,7 @@
 
 
 import time
+import selenium
 from selenium import webdriver
 
 # Check to see if modules have been imported correctly
@@ -17,74 +18,100 @@ if not time:
 
 def search_for_movie(browser, movie):
     """This will be our search in the imdb movie database"""
-    try:
-        element = browser.find_element_by_id("suggestion-search")
-        print("Found search bar!")
-        if element:
-            print("Found movie!")
-            element.send_keys(movie)
-            time.sleep(1)  # Sleep is introduced to let the user see what is going on!
+    element = browser.find_element_by_id("suggestion-search")
+    print("Found search bar!")
+    if element:
+        element.send_keys(movie)
+        time.sleep(2)  # Sleep is introduced to let the user see what is going on!
+        try:
             result = browser.find_element_by_class_name("react-autosuggest__suggestions-list")
-            if result:
-                print("Trying first result!")
-                option = result.find_element_by_id("react-autowhatever-1--item-0")
-                option.click()
-                time.sleep(1)
-                current_url = browser.current_url
-                browser.get(current_url[0:37] + "reviews?ref_=tt_ov_rt")  # All review pages have identical ending href
-                time.sleep(1)
-            else:
-                print("Had to manually search for result")
-                element.submit()
-    except ModuleNotFoundError as message:
-        print("We couldn't find the search bar!")
-        raise SystemExit(message)
+            print("Found movie!")
+            print("Trying first result!")
+            option = result.find_element_by_id("react-autowhatever-1--item-0")
+            option.click()
+            time.sleep(1)
+            current_url = browser.current_url
+            browser.get(current_url[0:37] + "reviews?ref_=tt_ov_rt")  # All review pages have identical ending href
+            time.sleep(1)
+        except selenium.common.exceptions.NoSuchElementException:
+            print("Had to manually search for result")
+            element.submit()
+            try:
+                first_result = browser.find_element_by_class_name("result_text")
+                if first_result:
+                    first_result.click()
+            except selenium.common.exceptions.NoSuchElementException:
+                print("No movie found...")
+                print("Try again? y/n")
+                ans = input()
+                if ans == "y":
+                    browser.quit()
+                    return main()
+                else:
+                    raise SystemExit
 
 
-def save_reviews_to_file(browser, movie):
-    """If no file exists, we create an empty file"""
+def save_reviews_to_file(browser, movie, amount):
+    """We need to handle spoiler warnings, as they do not show the full review"""
+    spoilers = browser.find_elements_by_class_name("lister-item.mode-detail.imdb-user-review.with-spoiler")
+    if spoilers:
+        button = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
+        for i in range(len(spoilers)-1):
+            button[i].click()  # Spoiler_warning == False (?)
+        time.sleep(1)
+
+    reviews = browser.find_elements_by_css_selector(".imdb-user-review")
+    if not reviews:
+        print("This movie has no reviews..")
+        print("Try again? y/n")
+        ans = input()
+        if ans == "y":
+            browser.quit()
+            return main()
+        else:
+            raise SystemExit
+
+    print("Found " + str(len(reviews)) + " reviews!" + "\n" + "Selecting " + str(amount) + " of them.")
+    ratings = browser.find_elements_by_class_name("rating-other-user-rating")
+    usernames = browser.find_elements_by_class_name("display-name-link")
+    texts = browser.find_elements_by_class_name("text.show-more__control")
+    titles = browser.find_elements_by_class_name("title")
+
+    # If no file exists, we create an empty file
     try:
         print("Creating file: " + movie + ".txt")
         f = open("./result/" + movie + ".txt", "x")
         f.close()
     except FileExistsError:
-        print("Found file already.")
+        print("Found file already..." + "\n" + "Updating...")
 
     with open("./result/" + movie + ".txt", mode="w") as file:
-        # We need to handle spoiler warnings, as they do not show the full review
-        button = browser.find_element_by_class_name("expander-icon-wrapper.spoiler-warning__control")
-        text = browser.find_element_by_class_name("text.show-more__control")
-        if not text:
-            if button:
-                button.click()  # Spoiler_warning == False (?)
-                time.sleep(1)
-                text = browser.find_element_by_class_name("text.show-more__control")
-            else:
-                print("No reviews to be found.")
-
-        print("Found review!")
-        rating = browser.find_element_by_class_name("rating-other-user-rating")
-        user = browser.find_element_by_class_name("display-name-link")
-        to_write = text.text
-        to_rate = rating.text
-        username = user.text
-        file.writelines("User: " + username + "\n" + "Rating: " + to_rate + "\n" + to_write)
+        for i in range(amount):
+            username = usernames[i].text
+            rating = ratings[i].text
+            title = titles[i].text
+            text = texts[i].text
+            file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + title + "\n" + text)
+            file.write("\n" * 2)
 
         # The program closes after 5 seconds for convenience
-        time.sleep(5)
-        browser.quit()
+        time.sleep(3)
+        print("Done!")
+        raise SystemExit
 
 
 def main():
     print("Search for a movie: ")
     movie = input()
+    print("How many reviews do you want to grab?")
+    amount = int(input())
 
     # Make sure to add chromedriver to PATH before using the app!
     browser = webdriver.Chrome("./files/chromedriver.exe")
     browser.get("https://www.imdb.com")
     time.sleep(1)
     search_for_movie(browser, movie)
-    save_reviews_to_file(browser, movie)
+    save_reviews_to_file(browser, movie, amount)
 
 
 main()

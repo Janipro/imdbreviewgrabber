@@ -17,7 +17,7 @@ if not time:
 
 
 def search_for_title(browser, title):
-    """This will be our search in the imdb movie database"""
+    """This will be our search in the imdb database"""
     element = browser.find_element_by_id("suggestion-search")
     print("Found search bar!")
     if element:

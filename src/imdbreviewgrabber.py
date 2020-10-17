@@ -16,16 +16,16 @@ if not time:
     print("Could not import time module!")
 
 
-def search_for_movie(browser, movie):
+def search_for_title(browser, title):
     """This will be our search in the imdb movie database"""
     element = browser.find_element_by_id("suggestion-search")
     print("Found search bar!")
     if element:
-        element.send_keys(movie)
+        element.send_keys(title)
         time.sleep(1)  # Sleep is introduced to let the user see what is going on!
         try:
             result = browser.find_element_by_class_name("react-autosuggest__suggestions-list")
-            print("Found movie!")
+            print("Found title!")
             print("Trying first result!")
             option = result.find_element_by_id("react-autowhatever-1--item-0")
             option.click()
@@ -42,7 +42,7 @@ def search_for_movie(browser, movie):
                 if first_result:
                     first_result.click()
             except selenium.common.exceptions.NoSuchElementException:
-                print("No movie found...")
+                print("No title found...")
                 print("Try again? y/n")
                 ans = input()
                 if ans == "y":
@@ -52,7 +52,7 @@ def search_for_movie(browser, movie):
                     raise SystemExit
 
 
-def save_reviews_to_file(browser, movie, amount):
+def save_reviews_to_file(browser, title, amount):
     """We need to handle spoiler warnings, as they do not show the full review"""
     reviews = browser.find_elements_by_css_selector(".imdb-user-review")
     while len(reviews) < amount:
@@ -92,19 +92,19 @@ def save_reviews_to_file(browser, movie, amount):
 
     # If no file exists, we create an empty file
     try:
-        print("Creating file: " + movie + ".txt")
-        f = open("./result/" + movie + ".txt", "x")
+        print("Creating file: " + title + ".txt")
+        f = open("./result/" + title + ".txt", "x")
         f.close()
     except FileExistsError:
         print("Found file already..." + "\n" + "Updating...")
 
-    with open("./result/" + movie + ".txt", mode="w") as file:
+    with open("./result/" + title + ".txt", mode="w") as file:
         for i in range(amount):
             username = usernames[i].text
             rating = ratings[i].text
-            title = titles[i].text
+            text_title = titles[i].text
             text = texts[i].text
-            file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + title + "\n" + text)
+            file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + text_title + "\n" + text)
             file.write("\n" * 2)
 
         # The program closes after 2 seconds for convenience
@@ -114,8 +114,8 @@ def save_reviews_to_file(browser, movie, amount):
 
 
 def main():
-    print("Search for a movie: ")
-    movie = input()
+    print("Search for a title: ")
+    title = input()
     print("How many reviews do you want to grab?")
     amount = int(input())
 
@@ -123,8 +123,8 @@ def main():
     browser = webdriver.Chrome("./files/chromedriver.exe")
     browser.get("https://www.imdb.com")
     time.sleep(1)
-    search_for_movie(browser, movie)
-    save_reviews_to_file(browser, movie, amount)
+    search_for_title(browser, title)
+    save_reviews_to_file(browser, title, amount)
 
 
 main()

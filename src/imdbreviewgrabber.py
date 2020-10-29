@@ -41,6 +41,10 @@ def search_for_title(browser, title):
                 first_result = browser.find_element_by_class_name("result_text")
                 if first_result:
                     first_result.click()
+                    time.sleep(1)
+                    current_url = browser.current_url
+                    browser.get(current_url[0:37] + "reviews?ref_=tt_ov_rt")
+                    time.sleep(1)
             except selenium.common.exceptions.NoSuchElementException:
                 print("No title found...")
                 print("Try again? y/n")
@@ -63,15 +67,15 @@ def save_reviews_to_file(browser, title, amount):
 
     expandables = browser.find_elements_by_class_name("text.show-more__control.clickable")
     if expandables:
-        for i in range(len(expandables)-1):
-            expandables[i].click()
+        for item in expandables:
+            item.click()
         time.sleep(1)
 
     spoilers = browser.find_elements_by_class_name("spoiler-warning")
     if spoilers:
-        button = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
-        for i in range(len(spoilers)-1):
-            button[i].click()  # Spoiler_warning == False (?)
+        buttons = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
+        for button in buttons:
+            button.click()  # Spoiler_warning == False (?)
         time.sleep(1)
 
     if not reviews:
@@ -84,7 +88,13 @@ def save_reviews_to_file(browser, title, amount):
         else:
             raise SystemExit
 
-    print("Found " + str(len(reviews)) + " reviews!" + "\n" + "Selecting " + str(amount) + " of them.")
+    print("Found "
+          + str(len(reviews))
+          + " reviews!"
+          + "\n"
+          + "Selecting "
+          + str(amount)
+          + " of them.")
     ratings = browser.find_elements_by_class_name("rating-other-user-rating")
     usernames = browser.find_elements_by_class_name("display-name-link")
     texts = browser.find_elements_by_class_name("text.show-more__control")
@@ -104,8 +114,17 @@ def save_reviews_to_file(browser, title, amount):
             rating = ratings[i].text
             text_title = titles[i].text
             text = texts[i].text
-            file.write("User: " + username + "\n" + "Rating: " + rating + "\n" + "Title: " + text_title + "\n" + text)
-            file.write("\n" * 2)
+            try:
+                file.write("User: "
+                           + username + "\n"
+                           + "Rating: "
+                           + rating + "\n"
+                           + "Title: "
+                           + text_title + "\n"
+                           + text)
+                file.write("\n" * 2)
+            except UnicodeEncodeError:
+                continue
 
         # The program closes after 2 seconds for convenience
         time.sleep(2)

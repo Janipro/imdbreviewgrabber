@@ -18,16 +18,16 @@ if not time:
 
 def search_for_title(browser, title):
     """This will be our search in the imdb database"""
-    element = browser.find_element_by_id("suggestion-search")
+    element = browser.find_element("id", "suggestion-search")
     print("Found search bar!")
     if element:
         element.send_keys(title)
         time.sleep(1)  # Sleep is introduced to let the user see what is going on!
         try:
-            result = browser.find_element_by_class_name("react-autosuggest__suggestions-list")
+            result = browser.find_element("name", "react-autosuggest__suggestions-list")
             print("Found title!")
             print("Trying first result!")
-            option = result.find_element_by_id("react-autowhatever-1--item-0")
+            option = result.find_element("id", "react-autowhatever-1--item-0")
             option.click()
             time.sleep(1)
             current_url = browser.current_url
@@ -38,7 +38,7 @@ def search_for_title(browser, title):
             element.submit()
             time.sleep(1)
             try:
-                first_result = browser.find_element_by_class_name("result_text")
+                first_result = browser.find_element("name", "result_text")
                 if first_result:
                     first_result.click()
                     time.sleep(1)
@@ -58,22 +58,22 @@ def search_for_title(browser, title):
 
 def save_reviews_to_file(browser, title, amount):
     """We need to handle spoiler warnings, as they do not show the full review"""
-    reviews = browser.find_elements_by_css_selector(".imdb-user-review")
+    reviews = browser.find_elements("selector", ".imdb-user-review")
     while len(reviews) < amount:
-        extend = browser.find_element_by_class_name("load-more-data")
+        extend = browser.find_element("name", "load-more-data")
         extend.click()
         time.sleep(2)
-        reviews = browser.find_elements_by_css_selector(".imdb-user-review")
+        reviews = browser.find_elements("selector", ".imdb-user-review")
 
-    expandables = browser.find_elements_by_class_name("text.show-more__control.clickable")
+    expandables = browser.find_elements("name", "text.show-more__control.clickable")
     if expandables:
         for item in expandables:
             item.click()
         time.sleep(1)
 
-    spoilers = browser.find_elements_by_class_name("spoiler-warning")
+    spoilers = browser.find_elements("name", "spoiler-warning")
     if spoilers:
-        buttons = browser.find_elements_by_class_name("expander-icon-wrapper.spoiler-warning__control")
+        buttons = browser.find_elements("name", "expander-icon-wrapper.spoiler-warning__control")
         for button in buttons:
             button.click()  # Spoiler_warning == False (?)
         time.sleep(1)
@@ -95,10 +95,10 @@ def save_reviews_to_file(browser, title, amount):
           + "Selecting "
           + str(amount)
           + " of them.")
-    ratings = browser.find_elements_by_class_name("rating-other-user-rating")
-    usernames = browser.find_elements_by_class_name("display-name-link")
-    texts = browser.find_elements_by_class_name("text.show-more__control")
-    titles = browser.find_elements_by_class_name("title")
+    ratings = browser.find_elements("name", "rating-other-user-rating")
+    usernames = browser.find_elements("name", "display-name-link")
+    texts = browser.find_elements("name", "text.show-more__control")
+    titles = browser.find_elements("name", "title")
 
     # If no file exists, we create an empty file
     try:
